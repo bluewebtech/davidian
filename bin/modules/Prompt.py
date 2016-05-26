@@ -4,7 +4,7 @@ import modules, sys
 
 class Prompt(object):
 
-    def query_yes_no(self, question, default="yes"):
+    def ask(self, question, default="yes"):
         valid = {"yes": True, "y": True, "ye": True,
                  "no": False, "n": False}
         if default is None:

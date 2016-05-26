@@ -30,7 +30,18 @@ class Docker(object):
     @return self:
     '''
     def create(self):
-        self.message('create').process('create')
+        self.message('create').process('create').env()
+
+    '''
+    Set the docker machine environment variables.
+
+    @param self:
+    @return self:
+    '''
+    def env(self):
+        self.message('env')
+        os.system('eval $(' + self.machine + ' env ' + self.project + ')')
+        return self
 
     '''
     Handle the Docker events based on the current container status.
@@ -75,11 +86,24 @@ class Docker(object):
     def messages(self):
         return {
             'create':  'Creating docker machine (' + self.project + ') since it was not found.',
+            'env':     'Setting the (' + self.project + ') environment variables.',
             'ignore':  'Ok! As you were soldier.',
             'prepare': 'Preparing environment: ' + self.project + ' : ' + self.status(),
             'start':   'The docker machine (' + self.project + ') already exists.',
             'stop':    'The docker machine (' + self.project + ') is now stopping,'
         }
+
+    '''
+    Handle the specific process based on flag.
+
+    @param self:
+    @param string flag:
+    @return self:
+    '''
+    def process(self, flag):
+        print self.machine + ' ' + self.flag(flag) + ' ' + self.project
+        os.system(self.machine + ' ' + self.flag(flag) + ' ' + self.project)
+        return self
 
     '''
     Create the Docker machine based off the name of the project root directory.
@@ -92,17 +116,6 @@ class Docker(object):
             self.create()
         else:
             self.start()
-
-    '''
-    Handle the specific process based on flag.
-
-    @param self:
-    @param string flag:
-    @return self:
-    '''
-    def process(self, flag):
-        os.system(self.machine + ' ' + self.flag(flag) + ' ' + self.project)
-        return self
 
     '''
     Run the Docker start up process.
@@ -129,7 +142,7 @@ class Docker(object):
     @return self:
     '''
     def stop(self):
-        if (modules.Prompt().query_yes_no('Would you like to stop the ('  + self.project + ') Docker container?')):
+        if (modules.Prompt().ask('Would you like to stop the ('  + self.project + ') Docker container?')):
             self.message('stop').process('stop')
         else:
             self.message('ignore')
