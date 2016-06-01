@@ -3,9 +3,10 @@ services:
   web:
     build: .
     ports:
-      - "8080:8080"
+     - "5000:5000"
     volumes:
-      - .:/src
-      - logvolume01:/var/log
-volumes:
-  logvolume01: {}
+     - .:/code
+    depends_on:
+     - redis
+  redis:
+    image: redis

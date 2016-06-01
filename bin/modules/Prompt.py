@@ -1,6 +1,7 @@
 #!/usr/bin/env python
-#
-import modules, sys
+
+import modules
+import sys
 
 class Prompt(object):
 

@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 
-import inspect, modules, os, Prompt
+import inspect
+import modules
+import os
+import Prompt
+import re
+from subprocess import call
 
 '''
 Docker Object
@@ -19,9 +24,31 @@ class Docker(object):
     @return void:
     '''
     def __init__(self, project):
+        self.docker = 'docker'
+        self.compose = 'docker-compose'
         self.machine = 'docker-machine'
         self.project = project
         self.event(self.status())
+
+    def build(self):
+        self.message('build')
+        os.system('docker build -t ' + self.project + ' .')
+        return self
+
+    def up(self):
+        os.system('docker-compose up')
+        return self
+
+    '''
+    Regenerate machine certificates.
+
+    @param self:
+    @return self:
+    '''
+    def certs(self):
+        self.message('certs')
+        os.system(self.machine + ' regenerate-certs ' + self.project)
+        return self
 
     '''
     Run the Docker create up process.
@@ -32,16 +59,8 @@ class Docker(object):
     def create(self):
         self.message('create').process('create').env()
 
-    '''
-    Set the docker machine environment variables.
-
-    @param self:
-    @return self:
-    '''
-    def env(self):
-        self.message('env')
-        os.system('eval $(' + self.machine + ' env ' + self.project + ')')
-        return self
+    def getEnv(self):
+        return '\n'.join([i for i in os.popen(self.machine + ' env ' + self.project + " 2>&1").read().split('\n') if len(i) > 0])
 
     '''
     Handle the Docker events based on the current container status.
@@ -85,6 +104,8 @@ class Docker(object):
     '''
     def messages(self):
         return {
+            'build':   'Building the (' + self.project + ') docker image.',
+            'certs':   'Generating certificates for docker machine (' + self.project + ').',
             'create':  'Creating docker machine (' + self.project + ') since it was not found.',
             'env':     'Setting the (' + self.project + ') environment variables.',
             'ignore':  'Ok! As you were soldier.',
@@ -101,7 +122,7 @@ class Docker(object):
     @return self:
     '''
     def process(self, flag):
-        print self.machine + ' ' + self.flag(flag) + ' ' + self.project
+        #print self.machine + ' ' + self.flag(flag) + ' ' + self.project
         os.system(self.machine + ' ' + self.flag(flag) + ' ' + self.project)
         return self
 
@@ -124,7 +145,8 @@ class Docker(object):
     @return self:
     '''
     def start(self):
-        self.message('start').process('start')
+        self.message('start').process('start').env()
+        return self
 
     '''
     Get the status of the current Docker machine.

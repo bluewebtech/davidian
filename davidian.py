@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
 # Import some modules.
-import os, sys
+import os
+import sys
+import subprocess
 
 # Set up a few defaults values.
 ROOT = os.path.dirname(os.path.realpath(__file__))
@@ -13,5 +15,9 @@ sys.path.insert(0, ROOT + '/bin')
 # Import the davidian modules.
 import modules
 
+modules.Environment()
+
+#subprocess.call('sh davidian.sh', shell=True)
+
 # Docker all the things.
-modules.Docker(PROJECT)
+#modules.Docker(PROJECT)
